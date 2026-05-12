@@ -1,63 +1,63 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export const purchasesQuery = createApi({
-  reducerPath: 'purchasesPath',
+export const supplierQuery = createApi({
+  reducerPath: 'suppliersPath',
   baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_BASE_URL}/purchases`,
+    baseUrl: `${import.meta.env.VITE_BASE_URL}/admin/suppliers`,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
       return headers;
-    },  
+    },
   }),
-  tagTypes: ['PurchasesAPI'],
+  tagTypes: ['SuppliersAPI'],
   endpoints: (builder) => ({
-    purchases: builder.query<any, void>({
+    suppliers: builder.query<any, void>({
       query: () => ({
         url: '/',
         method: 'GET',
       }),
-      providesTags: ['PurchasesAPI'],
+      providesTags: ['SuppliersAPI'],
     }),
-    purchase: builder.query<any, number>({
+    supplier: builder.query<any, string>({
       query: (id) => ({
         url: `/${id}`,
         method: 'GET',
       }),
-      providesTags: ['PurchasesAPI'],
+      providesTags: ['SuppliersAPI'],
     }),
-    addPurchase: builder.mutation<any, any>({
+    addSupplier: builder.mutation<any, any>({
       query: (body) => ({
         url: '/',
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['PurchasesAPI'],
+      invalidatesTags: ['SuppliersAPI'],
     }),
-    updatePurchase: builder.mutation<any, { body: any; id: number | string }>({
+    updateSupplier: builder.mutation<any, { body: any; id: number | string }>({
       query: ({ body, id }) => ({
         url: `/${id}`,
         method: 'PUT',
         body,
       }),
-      invalidatesTags: ['PurchasesAPI'],
+      invalidatesTags: ['SuppliersAPI'],
     }),
-    deletePurchase: builder.mutation<any, number | string>({
+    deleteSupplier: builder.mutation<any, number | string>({
       query: (id) => ({
         url: `/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['PurchasesAPI'],
+      invalidatesTags: ['SuppliersAPI'],
     }),
   }),
 });
 
 export const {
-  usePurchasesQuery,
-  usePurchaseQuery,
-  useAddPurchaseMutation,
-  useUpdatePurchaseMutation,
-  useDeletePurchaseMutation,
-} = purchasesQuery;
+  useSupplierQuery,
+  useSuppliersQuery,
+  useAddSupplierMutation,
+  useUpdateSupplierMutation,
+  useDeleteSupplierMutation,
+} = supplierQuery;
