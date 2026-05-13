@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StoreCategoryRequest extends FormRequest
+class StoreBusinessBranchRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -16,18 +16,20 @@ class StoreCategoryRequest extends FormRequest
         return Auth::check();
     }
 
-    // prepare for validation
-    businessServicebusinessService
-
-     // * @return array<string, ValidationRule|array<mixed>|string>
-
+    public function prepareForValidation(){
+        $user = Auth::user();
+        $this->merge([
+            "business_id" => $user->business_id,
+            "status" => true
+        ]);
+    }
     public function rules(): array
     {
         return [
             'business_id' => 'required|exists:businesses,id',
             'name' => 'required|string|min:1|max:255',
-            'description' => 'required|string|min:1|max:255',
-            'status' => 'required|boolean',
+            'address' => 'nullable|string|min:1|max:255',
+            'status' => 'required|string|in:active,innactive',
         ];
     }
 }
