@@ -25,11 +25,9 @@ export const AddProduct: React.FC<AddProductProps> = ({ addProduct }) => {
   const [open, setOpen] = useState(false);
   const { data } = useProductCategoriesQuery();
 
-  // console.log('Category==>', data);
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
-    // barcode: '',
     price: '',
     cost_price: '',
     quantity: '',
@@ -40,13 +38,26 @@ export const AddProduct: React.FC<AddProductProps> = ({ addProduct }) => {
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: Call addProduct mutation
-    const res = await addProduct(formData).unwrap();
-    if (res) {
-      toast.success(res.message);
+    try {
+      const res = await addProduct(formData).unwrap();
+      if (res) {
+        toast.success(res.message || 'Product added successfully');
+        setOpen(false);
+        setFormData({
+          name: '',
+          sku: '',
+          price: '',
+          cost_price: '',
+          quantity: '',
+          reorder_level: '',
+          description: '',
+          category_id: '',
+        });
+      }
+    } catch (error) {
+      toast.error('Failed to add product');
+      console.error(error);
     }
-    console.log('Adding product:', res);
-    (falsesetOpen);
   };
 
   const handleChange = (field: string, value: string) => {

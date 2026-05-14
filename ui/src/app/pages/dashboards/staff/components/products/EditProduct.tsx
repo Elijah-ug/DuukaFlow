@@ -7,46 +7,66 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
 import { useProductCategoriesQuery } from '@/app/store/features/business/products/productsQuery';
 import { toast } from 'sonner';
 
-interface AddProductProps {
-  addProduct: any;
+interface EditProductProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  product: any;
+  updateProduct: any;
 }
 
-export const AddProduct: React.FC<AddProductProps> = ({ addProduct }) => {
-  const [open, setOpen] = useState(false);
-  const { data } = useProductCategoriesQuery();
+export const EditProduct: React.FC<EditProductProps> = ({ open, onOpenChange, product, updateProduct }) => {
+  const { data: categories } = useProductCategoriesQuery();
 
-  // console.log('Category==>', data);
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
-    // barcode: '',
+    barcode: '',
     price: '',
     cost_price: '',
     quantity: '',
-    reorder_level: '',
+    minimum_stock: '',
+    status: '',
     description: '',
     category_id: '',
   });
 
+  React.useEffect(() => {
+    if (product) {
+      setFormData({
+        name: product.name || '',
+        sku: product.sku || '',
+        barcode: product.barcode || '',
+        price: product.price?.toString() || '',
+        cost_price: product.cost_price?.toString() || '',
+        quantity: product.quantity?.toString() || '',
+        minimum_stock: product.minimum_stock?.toString() || '',
+        status: product.status || 'active',
+        description: product.description || '',
+        category_id: product.category_id?.toString() || '',
+      });
+    }
+  }, [product]);
+
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: Call addProduct mutation
-    const res = await addProduct(formData).unwrap();
-    if (res) {
-      toast.success(res.message);
+    try {
+      const res = await updateProduct({ body: formData, id: product.id }).unwrap();
+      if (res) {
+        toast.success(res.message || 'Product updated successfully');
+        onOpenChange(false);
+      }
+    } catch (error) {
+      toast.error('Failed to update product');
+      console.error('Update error:', error);
     }
-    console.log('Adding product:', res);
-    (falsesetOpen);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -54,17 +74,11 @@ export const AddProduct: React.FC<AddProductProps> = ({ addProduct }) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className='h-4 w-4 mr-2' />
-          Add Product
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-106.25'>
         <DialogHeader>
-          <DialogTitle>Add New Product</DialogTitle>
-          <DialogDescription>Enter the details for the new product.</DialogDescription>
+          <DialogTitle>Edit Product</DialogTitle>
+          <DialogDescription>Update the details for the product.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className='grid gap-4 py-4'>
@@ -92,7 +106,17 @@ export const AddProduct: React.FC<AddProductProps> = ({ addProduct }) => {
                 required
               />
             </div>
-
+            <div className='grid grid-cols-4 items-center gap-4'>
+              <Label htmlFor='barcode' className='text-right'>
+                Barcode
+              </Label>
+              <Input
+                id='barcode'
+                value={formData.barcode}
+                onChange={(e) => handleChange('barcode', e.target.value)}
+                className='col-span-3'
+              />
+            </div>
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='price' className='text-right'>
                 Price
@@ -133,20 +157,6 @@ export const AddProduct: React.FC<AddProductProps> = ({ addProduct }) => {
               />
             </div>
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='reorder_level' className='text-right'>
-                Reorder Level
-              </Label>
-              <Input
-                id='reorder_level'
-                type='number'
-                value={formData.reorder_level}
-                onChange={(e) => handleChange('reorder_level', e.target.value)}
-                className='col-span-3'
-                required
-              />
-            </div>
-
-            <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='category_id' className='text-right'>
                 Category
               </Label>
@@ -154,9 +164,8 @@ export const AddProduct: React.FC<AddProductProps> = ({ addProduct }) => {
                 <SelectTrigger className='col-span-3'>
                   <SelectValue placeholder='Select category' />
                 </SelectTrigger>
-
                 <SelectContent>
-                  {data?.categories.map((cat: any) => (
+                  {categories?.categories.map((cat: any) => (
                     <SelectItem key={cat.id} value={String(cat.id)}>
                       {cat.name}
                     </SelectItem>
@@ -177,7 +186,7 @@ export const AddProduct: React.FC<AddProductProps> = ({ addProduct }) => {
             </div>
           </div>
           <DialogFooter>
-            <Button type='submit'>Add Product</Button>
+            <Button type='submit'>Update Product</Button>
           </DialogFooter>
         </form>
       </DialogContent>
