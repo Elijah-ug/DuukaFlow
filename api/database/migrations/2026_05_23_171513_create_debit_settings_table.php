@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reports_settings', function (Blueprint $table) {
+        Schema::create('debit_settings', function (Blueprint $table) {
             $table->id();
             $table->foreignId("business_id")->constrained()->cascadeOnDelete();
             $table->enum("status", ["enabled", "disabled"]);
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('reports_settings');
+        Schema::dropIfExists('debit_settings');
     }
 };
