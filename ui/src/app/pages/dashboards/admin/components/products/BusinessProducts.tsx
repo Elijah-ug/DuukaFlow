@@ -1,20 +1,24 @@
 import {
   useDeleteProductCategoryMutation,
   useProductCategoriesQuery,
+  useProductsQuery,
 } from '@/app/store/features/business/products/productsQuery';
 import { ArrowLeftCircle, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PageLoadingState } from '@/utils/PageLoadingState';
 import { toast } from 'sonner';
 import { AddProductCategory } from './AddProductCategory';
 import { EditProductCategory } from './EditProductCategory';
+import { EditBusinessProduct } from './EditBusinessProduct';
 
-export const ProductCategories = () => {
-  const { data, isLoading } = useProductCategoriesQuery();
+export const BusinessProducts = () => {
+  const { data, isLoading } = useProductsQuery();
+  const navigate = useNavigate()
   const [remove, { isLoading: deleting }] = useDeleteProductCategoryMutation();
-console.log("Categories==>", data)
+  const products = data?.products;
+  console.log('Products in bs==>', data);
   const handleDelete = async (id: number) => {
     try {
       const res = await remove(id).unwrap();
@@ -45,21 +49,25 @@ console.log("Categories==>", data)
         <AddProductCategory />
       </div>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-        {categories.map((category: any) => (
-          <Card key={category.id} className='hover:shadow-md transition-shadow'>
+        {products.map((product: any) => (
+          <Card key={product.id} className='hover:shadow-md transition-shadow' onClick={()=>navigate(`/admin/business-products/${product.id}`)} >
             <CardHeader>
-              <CardAction className='rounded-full bg-white/20 px-2'>ID: {category.id}</CardAction>
-              <CardTitle className='text-lg'>{category.name}</CardTitle>
-              <CardDescription>{category.description || 'No description'}</CardDescription>
+              <CardAction className='rounded-full bg-white/20 px-2'>CatID: {product.category_id}</CardAction>
+              <CardTitle className='text-lg'>{product.name}</CardTitle>
+              <CardDescription>{product.description || 'No description'}</CardDescription>
             </CardHeader>
             <CardContent>
+              {/* <div className="">
+                <span>Cat ID</span>
+                <span>{product.category_id}</span>
+              </div> */}
               <div className='flex gap-2'>
-                <EditProductCategory category={category} />
+                <EditBusinessProduct product={product} />
                 <Button
                   variant='outline'
                   size='sm'
                   className='text-red-400 hover:text-red-600'
-                  onClick={() => handleDelete(category.id)}
+                  onClick={() => handleDelete(product.id)}
                   disabled={deleting}
                 >
                   <Trash2 className='h-4 w-4 mr-2' />
@@ -70,7 +78,7 @@ console.log("Categories==>", data)
           </Card>
         ))}
       </div>
-      {categories.length === 0 && (
+      {products.length === 0 && (
         <div className='text-center py-8'>
           <p className='text-muted-foreground'>No categories found. Add some categories to get started.</p>
         </div>
