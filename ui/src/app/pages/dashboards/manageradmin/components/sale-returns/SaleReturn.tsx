@@ -16,7 +16,6 @@ export const SaleReturn = () => {
   if (isLoading) return <PageLoadingState />;
 
   const sr = srData?.sale_return || srData;
-  
   if (!sr) {
     return (
       <div className='flex items-center justify-center h-64'>
@@ -28,7 +27,7 @@ export const SaleReturn = () => {
   return (
     <div className='space-y-6'>
       <div className='flex items-center gap-4'>
-        <Link to='../sale-returns' className='flex items-center gap-2 text-blue-400 hover:underline'>
+        <Link to='..' className='flex items-center gap-2 text-blue-400 hover:underline'>
           <ArrowLeftCircle />
           <span>Back to Sale Returns</span>
         </Link>
