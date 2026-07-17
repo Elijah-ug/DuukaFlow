@@ -2,17 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Models\BusinessBranch;
+use App\Models\Business;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class BusinessBranchFactory extends Factory
+class BusinessFactory extends Factory
 {
-    protected $model = BusinessBranch::class;
+    protected $model = Business::class;
 
     public function definition(): array
     {
         return [
-            'name' => fake()->company() . ' Branch',
+            'name' => fake()->company(),
+            'email' => fake()->companyEmail(),
             'phone' => fake()->phoneNumber(),
             'status' => 'active',
         ];
