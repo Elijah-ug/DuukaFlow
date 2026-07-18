@@ -6,28 +6,30 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Promotion extends Model
+class Coupon extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'business_id',
         'business_branch_id',
-        'title',
+        'code',
         'description',
         'discount_type',
         'discount_value',
-        'start_date',
-        'end_date',
-        'status',
+        'min_order_amount',
+        'valid_from',
+        'valid_until',
         'max_uses',
         'used_count',
+        'status',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'valid_from' => 'date',
+        'valid_until' => 'date',
         'discount_value' => 'decimal:2',
+        'min_order_amount' => 'decimal:2',
     ];
 
     public function business(): BelongsTo
