@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -7,74 +7,63 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
-export const AddReorderRule = ({ createRule, products, suppliers }: any) => {
-  const [open, setOpen] = useState(false);
+export const EditReorderRule = ({ open, onOpenChange, rule, products, suppliers, updateRule }: any) => {
   const [form, setForm] = useState({
-    product_id: '',
     reorder_quantity: '',
     preferred_supplier_id: '',
     auto_approve: false,
   });
-  // console.log('suppliers==>', suppliers);
+
+  useEffect(() => {
+    if (rule) {
+      setForm({
+        reorder_quantity: String(rule.reorder_quantity ?? ''),
+        preferred_supplier_id: String(rule.preferred_supplier_id ?? ''),
+        auto_approve: Boolean(rule.auto_approve),
+      });
+    }
+  }, [rule]);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!form.product_id || !form.reorder_quantity) {
-      toast.error('Product and quantity required');
+    if (!form.reorder_quantity) {
+      toast.error('Reorder quantity is required');
       return;
     }
     try {
-      const res = await createRule({
+      const res = await updateRule({
+        id: rule.id,
         ...form,
         reorder_quantity: Number(form.reorder_quantity),
         preferred_supplier_id: form.preferred_supplier_id || null,
       }).unwrap();
-      console.log('response==>', res);
-      toast.success('Reorder rule created');
-      setOpen(false);
-      setForm({ product_id: '', reorder_quantity: '', preferred_supplier_id: '', auto_approve: false });
+      toast.success(res?.message || 'Reorder rule updated');
+      onOpenChange(false);
     } catch (err: any) {
-      console.log('error===>', err);
-      toast.error(err?.data?.message || 'Failed');
+      toast.error(err?.data?.message || 'Failed to update');
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size='sm'>
-          <Plus className='h-4 w-4 mr-2' /> Add Rule
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Reorder Rule</DialogTitle>
-          <DialogDescription>Auto-trigger purchase orders when stock hits the reorder level.</DialogDescription>
+          <DialogTitle>Edit Reorder Rule</DialogTitle>
+          <DialogDescription>Update the reorder rule for {rule?.product?.name}.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div className='space-y-2'>
             <Label>Product</Label>
-            <Select value={form.product_id} onValueChange={(v) => setForm({ ...form, product_id: v })}>
-              <SelectTrigger>
-                <SelectValue placeholder='Select product' />
-              </SelectTrigger>
-              <SelectContent>
-                {products?.map((p: any) => (
-                  <SelectItem key={p.id} value={String(p.id)}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className='text-sm font-medium py-2 px-3 rounded-md border bg-muted'>
+              {rule?.product?.name || '—'}
+            </div>
           </div>
           <div className='space-y-2'>
             <Label>Reorder Quantity</Label>
@@ -108,10 +97,10 @@ export const AddReorderRule = ({ createRule, products, suppliers }: any) => {
             <Label>Auto-approve purchase orders</Label>
           </div>
           <DialogFooter>
-            <Button type='button' variant='outline' onClick={() => setOpen(false)}>
+            <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type='submit'>Save</Button>
+            <Button type='submit'>Update</Button>
           </DialogFooter>
         </form>
       </DialogContent>
